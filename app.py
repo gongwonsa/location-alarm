@@ -59,134 +59,160 @@ mode = query_params.get("mode", ["display"])[0] if isinstance(query_params.get("
 
 st.markdown("""
     <style>
+    * {
+        box-sizing: border-box;
+    }
+    
+    /* 크롬 UI 회피 */
     .block-container {
-        padding-top: 0rem;
-        padding-bottom: 0.5rem;
-        padding-left: 1rem;
-        padding-right: 1rem;
+        padding: 0.5vh 1vw !important;
+        margin: 0 !important;
         background: #fef9f3;
+        max-width: 100% !important;
+        min-height: 100vh;
+    }
+    
+    .main .block-container {
+        padding-top: 0.5rem !important;
     }
     
     header[data-testid="stHeader"] {
-        display: none;
+        display: none !important;
     }
     
+    /* 헤더 - vw/vh 기준 */
     .app-header {
         text-align: center;
-        padding: 2.5rem 1.5rem;
+        padding: 1.5vh 2vw;
         background: linear-gradient(135deg, #b8c5f2 0%, #d4b5d4 100%);
-        border-radius: 0;
-        margin: 0;
-        margin-bottom: 2rem;
-        min-height: 120px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
+        margin: 0 0 1vh 0;
     }
     
     .app-title {
-        font-size: clamp(26px, 5vw, 36px);
+        font-size: clamp(16px, 2.5vw, 32px);
         font-weight: bold;
         color: #5a5a8f;
         margin: 0;
-        line-height: 1.5;
-        padding: 0.5rem 1.5rem;
-        white-space: nowrap;
+        line-height: 1.2;
     }
     
     .app-subtitle {
-        font-size: clamp(14px, 3vw, 18px);
+        font-size: clamp(10px, 1.5vw, 16px);
         color: #6b6b9f;
-        margin-top: 0.5rem;
-        line-height: 1.6;
-        padding: 0.3rem 1.5rem;
+        margin-top: 0.5vh;
+        line-height: 1.2;
     }
     
+    /* 위치 박스 - 최대 높이 제한 */
     .display-container {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 2rem 0;
-        background: linear-gradient(135deg, #ffe4f0 0%, #ffd4e8 100%);
-        border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0 !important;
+    background: linear-gradient(135deg, #ffe4f0 0%, #ffd4e8 100%);
+    border-radius: 15px;
+    height: 100%;
+    min-height: 25vh;
+    max-height: 75vh;
     }
-    
+
+/* ⭐ 이 부분 추가 ⭐ */
+    .display-container > * {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
     .location-text {
-        font-size: 60px;
+        font-size: clamp(18px, 3.5vw, 45px);
         font-weight: bold;
         color: #ff6b9d;
         text-align: center;
-        margin-bottom: 1rem;
+        margin: 0 !important;
+        padding: 0 !important;
     }
-    
+
     .floor-text {
-        font-size: 180px;
+        font-size: clamp(45px, 10vw, 130px);
         font-weight: bold;
         color: #ff1493;
         text-align: center;
-        margin: 1rem 0;
-        text-shadow: 4px 4px 8px rgba(255, 20, 147, 0.3);
+        margin: 0 !important;
+        padding: 0 !important;
+        text-shadow: 0.3vw 0.3vw 0.6vw rgba(255, 20, 147, 0.3);
         animation: pulse 2s ease-in-out infinite;
     }
-    
+
     @keyframes pulse {
         0%, 100% { transform: scale(1); }
         50% { transform: scale(1.05); }
     }
-    
+
     .update-time {
-        font-size: 28px;
+        font-size: clamp(13px, 1.8vw, 22px);
         color: #ff6b9d;
         text-align: center;
-        margin-top: 1rem;
+        margin: 0 !important;
+        padding: 0 !important;
         font-weight: 500;
     }
     
+    /* 버튼 */
     .stButton > button {
-        height: 150px;
-        font-size: 60px;
-        font-weight: bold;
-        border-radius: 15px;
+        height: clamp(70px, 12vh, 130px) !important;
+        font-size: clamp(28px, 4.5vw, 55px) !important;
+        font-weight: bold !important;
+        border-radius: 12px !important;
         background: linear-gradient(135deg, #ffd4e8 0%, #ffb4d4 100%) !important;
         color: #ff1493 !important;
-        border: 3px solid #ffb4d4 !important;
+        border: 0.2vw solid #ffb4d4 !important;
     }
     
     .stButton > button:hover {
         background: linear-gradient(135deg, #ffb4d4 0%, #ff94c4 100%) !important;
-        transform: translateY(-3px);
+        transform: translateY(-0.3vh);
     }
     
-    /* 시간표 스타일 */
+    /* 시간표 - 최대 높이 제한 */
     .timetable-container {
-        margin-top: 2rem;
+        margin: 0;
         background: #fff9fc;
-        padding: 1rem;
-        border-radius: 15px;
+        padding: 1vh 0.8vw;
+        border-radius: 12px;
+        height: 100%;
+        max-height: 77vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
     }
     
     .timetable-title {
-        font-size: clamp(20px, 4vw, 28px);
+        font-size: clamp(13px, 2.2vw, 22px);
         font-weight: bold;
         color: #b88bb8;
         text-align: center;
-        margin-bottom: 1rem;
+        margin-bottom: 0.8vh;
+        flex-shrink: 0;
     }
     
     table {
         width: 100%;
         border-collapse: collapse;
-        margin: 1rem auto;
+        margin: 0;
+        flex-grow: 1;
+        table-layout: fixed;
     }
     
     th, td {
-        border: 2px solid #d4b5d4 !important;
-        padding: clamp(0.3rem, 1vw, 0.5rem) !important;
+        border: 1px solid #d4b5d4 !important;
+        padding: clamp(0.2vh, 0.4vh, 0.8vh) clamp(0.2vw, 0.4vw, 0.8vw) !important;
         text-align: center !important;
-        font-size: clamp(10px, 2vw, 14px) !important;
+        font-size: clamp(7px, 1.1vw, 13px) !important;
         vertical-align: middle !important;
+        line-height: 1.1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     th {
@@ -202,23 +228,28 @@ st.markdown("""
         color: #7a7a9f !important;
     }
 
-    /* 모든 테이블 헤더 강제 가운데 정렬 */
     table th {
         text-align: center !important;
     }
 
-    /* 첫 번째 열(교시) 가운데 정렬 */
     table tr > *:first-child {
         text-align: center !important;
+        font-weight: bold;
     }
     
-    /* Streamlit 기본 스타일 오버라이드 */
+    /* 컬럼 간격 */
+    [data-testid="column"] {
+        padding: 0 0.4vw !important;
+    }
+    
+    /* Streamlit 탭 */
     .stTabs [data-baseweb="tab-list"] {
         background-color: #fef9f3;
     }
     
     .stTabs [data-baseweb="tab"] {
         color: #b88bb8 !important;
+        font-size: clamp(14px, 2vw, 20px) !important;
     }
     
     .stTabs [aria-selected="true"] {
@@ -226,40 +257,115 @@ st.markdown("""
         color: #ff1493 !important;
     }
     
-    /* 모바일 반응형 */
-    @media (max-width: 768px) {
-        .app-title {font-size: 28px;}
-        .app-subtitle {font-size: 14px;}
-        .floor-text {font-size: clamp(80px, 15vw, 120px) !important;}
-        .location-text {font-size: clamp(30px, 6vw, 40px) !important;}
-        .update-time {font-size: clamp(16px, 3vw, 20px) !important;}
-        .stButton > button {height: 100px; font-size: 40px;}
+    /* 전체 화면 높이 제한 */
+    .main {
+        max-height: 100vh;
+        overflow: auto;
+    }
+    
+    /* 초소형 세로 화면 (작은 폰) */
+    @media (max-width: 480px) and (orientation: portrait) {
+        .app-title {
+            font-size: 14px !important;
+            white-space: normal !important;
+        }
         
-        .timetable-title {
-            font-size: clamp(18px, 4vw, 24px) !important;
+        .app-subtitle {
+            font-size: 9px !important;
+        }
+        
+        .floor-text {
+            font-size: 40px !important;
+        }
+        
+        .location-text {
+            font-size: 16px !important;
         }
         
         th, td {
-            font-size: clamp(8px, 1.5vw, 12px) !important;
-            padding: clamp(0.2rem, 1vw, 0.3rem) !important;
-        }
-        
-        table {
-            font-size: clamp(8px, 1.5vw, 12px) !important;
+            font-size: 7px !important;
+            padding: 0.1rem !important;
         }
     }
     
-    /* 태블릿 가로 모드 */
-    @media (min-width: 769px) and (max-width: 1024px) {
-        .floor-text {font-size: clamp(120px, 18vw, 160px) !important;}
-        .location-text {font-size: clamp(40px, 7vw, 55px) !important;}
-        .update-time {font-size: clamp(20px, 3.5vw, 26px) !important;}
+    /* 초소형 가로 화면 (작은 태블릿 가로) */
+    @media (max-height: 500px) and (orientation: landscape) {
+        .app-header {
+            padding: 0.5vh 1vw !important;
+        }
+        
+        .app-title {
+            font-size: 14px !important;
+        }
+        
+        .app-subtitle {
+            font-size: 9px !important;
+        }
+        
+        .display-container {
+            padding: 0.8vh 0.5vw !important;
+            min-height: 20vh !important;
+        }
+        
+        .floor-text {
+            font-size: 50px !important;
+            margin: 0.3vh 0 !important;
+        }
+        
+        .location-text {
+            font-size: 18px !important;
+        }
+        
+        .update-time {
+            font-size: 12px !important;
+        }
         
         th, td {
-            font-size: clamp(10px, 1.8vw, 13px) !important;
-            padding: clamp(0.3rem, 1vw, 0.4rem) !important;
+            font-size: 7px !important;
+            padding: 0.1vh 0.2vw !important;
+        }
+        
+        .timetable-title {
+            font-size: 12px !important;
+            margin-bottom: 0.3vh !important;
         }
     }
+    
+    /* 중형 태블릿 세로 */
+    @media (min-width: 481px) and (max-width: 768px) and (orientation: portrait) {
+        .floor-text {
+            font-size: clamp(60px, 12vw, 100px) !important;
+        }
+    }
+    
+    /* 중형 태블릿 가로 */
+    @media (min-width: 769px) and (max-width: 1024px) and (orientation: landscape) {
+        .floor-text {
+            font-size: clamp(70px, 10vw, 120px) !important;
+        }
+        
+        th, td {
+            font-size: clamp(9px, 1.2vw, 12px) !important;
+        }
+    }
+
+    /* Streamlit markdown 기본 여백 제거 */
+    .stMarkdown {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    /* 컬럼 내부 여백 제거 */
+    [data-testid="column"] > div {
+        padding: 0 !important;
+    }
+    
+    /* element-container 여백 제거 */
+    .element-container {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
     </style>
 """, unsafe_allow_html=True)
 
@@ -370,13 +476,16 @@ else:
     # 왼쪽: 현재 위치
     with col_left:
         current_data = load_location()
-        st.markdown('<div class="display-container">', unsafe_allow_html=True)
-        st.markdown(f'<div class="location-text">현재 위치</div>', unsafe_allow_html=True)
-        st.markdown(f'<div class="floor-text">{current_data["floor"]}</div>', unsafe_allow_html=True)
         update_time = current_data["updated"].split()[1] if " " in current_data["updated"] else current_data["updated"]
-        st.markdown(f'<div class="update-time">업데이트: {update_time}</div>', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
     
+        st.markdown(f'''
+            <div class="display-container">
+            <div class="location-text">현재 위치</div>
+            <div class="floor-text">{current_data["floor"]}</div>
+            <div class="update-time">업데이트: {update_time}</div>
+        </div>
+        ''', unsafe_allow_html=True)
+        
     # 오른쪽: 시간표
     with col_right:
         st.markdown('<div class="timetable-container">', unsafe_allow_html=True)
