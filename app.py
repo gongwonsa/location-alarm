@@ -408,6 +408,10 @@ else:
         table_html += "</table>"
         st.markdown(table_html, unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
+
+        import time
+        time.sleep(5)
+        st.rerun()
     
     st.markdown("""
         <script>
