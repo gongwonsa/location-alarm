@@ -565,36 +565,6 @@ else:
         
         table_html += "</table>"
         st.markdown(table_html, unsafe_allow_html=True)
-        
-         # 네트워크 상태
-        st.markdown("""
-            <div id="network-status" style="text-align: center; margin-top: 0.5vh; padding: 0.8vh; background: #d4f4dd; color: #2d8659; border-radius: 8px; font-size: clamp(11px, 1.5vw, 14px); font-weight: bold;">
-                ✅ 네트워크 원활
-            </div>
-            
-            <script>
-            function updateStatus() {
-                const status = document.getElementById('network-status');
-                
-                if (navigator.onLine) {
-                    status.style.background = '#d4f4dd';
-                    status.style.color = '#2d8659';
-                    status.textContent = '✅ 네트워크 원활';
-                } else {
-                    status.style.background = '#ffe4e4';
-                    status.style.color = '#ff1493';
-                    status.textContent = '⚠️ 네트워크 연결 안됨. 선생님께 문의';
-                }
-            }
-            
-            // 초기 체크
-            updateStatus();
-            
-            // 온라인/오프라인 이벤트 감지
-            window.addEventListener('online', updateStatus);
-            window.addEventListener('offline', updateStatus);
-            </script>
-        """, unsafe_allow_html=True)
 
         import time
         time.sleep(5)
