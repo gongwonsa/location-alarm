@@ -498,7 +498,13 @@ else:
     # 왼쪽: 현재 위치
     with col_left:
         current_data = load_location()
-        update_time = current_data["updated"].split()[1] if " " in current_data["updated"] else current_data["updated"]
+        # 안전한 시간 추출
+        full_updated = current_data.get("updated", "")
+        if full_updated and " " in full_updated:
+            date_part, time_part = full_updated.split(" ", 1)
+            update_time = time_part
+        else:
+            update_time = full_updated if full_updated else "시간 정보 없음"
     
          # 층별 색상
         floor_colors = {
@@ -560,34 +566,33 @@ else:
         table_html += "</table>"
         st.markdown(table_html, unsafe_allow_html=True)
         
-        # 네트워크 상태 (시간표 바로 밑 - 항상 표시)
+         # 네트워크 상태
         st.markdown("""
-            <div id="network-status-ok" style="text-align: center; margin-top: 0.5vh; padding: 0.8vh; background: #d4f4dd; color: #2d8659; border-radius: 8px; font-size: clamp(11px, 1.5vw, 14px); font-weight: bold;">
+            <div id="network-status" style="text-align: center; margin-top: 0.5vh; padding: 0.8vh; background: #d4f4dd; color: #2d8659; border-radius: 8px; font-size: clamp(11px, 1.5vw, 14px); font-weight: bold;">
                 ✅ 네트워크 원활
             </div>
             
-            <div id="network-status-error" style="text-align: center; margin-top: 0.5vh; padding: 0.8vh; background: #ffe4e4; color: #ff1493; border-radius: 8px; display: none; font-size: clamp(11px, 1.5vw, 14px); font-weight: bold;">
-                ⚠️ 네트워크 연결 안됨. 선생님께 문의
-            </div>
-            
             <script>
-            function checkNetwork() {
-                const statusOk = document.getElementById('network-status-ok');
-                const statusError = document.getElementById('network-status-error');
+            function updateStatus() {
+                const status = document.getElementById('network-status');
                 
                 if (navigator.onLine) {
-                    statusOk.style.display = 'block';
-                    statusError.style.display = 'none';
+                    status.style.background = '#d4f4dd';
+                    status.style.color = '#2d8659';
+                    status.textContent = '✅ 네트워크 원활';
                 } else {
-                    statusOk.style.display = 'none';
-                    statusError.style.display = 'block';
+                    status.style.background = '#ffe4e4';
+                    status.style.color = '#ff1493';
+                    status.textContent = '⚠️ 네트워크 연결 안됨. 선생님께 문의';
                 }
             }
             
-            checkNetwork();
-            window.addEventListener('online', checkNetwork);
-            window.addEventListener('offline', checkNetwork);
-            setInterval(checkNetwork, 5000);
+            // 초기 체크
+            updateStatus();
+            
+            // 온라인/오프라인 이벤트 감지
+            window.addEventListener('online', updateStatus);
+            window.addEventListener('offline', updateStatus);
             </script>
         """, unsafe_allow_html=True)
 
