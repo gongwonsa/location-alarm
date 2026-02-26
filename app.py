@@ -2,6 +2,7 @@ import streamlit as st
 from datetime import datetime
 import json
 import os
+import pytz
 
 st.set_page_config(
     page_title="위치 안내 시스템",
@@ -18,10 +19,31 @@ def load_location():
                 return json.load(f)
         except:
             pass
-    return {"floor": "2층", "updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+    
+    # 기본값도 한국 시간
+    kst = pytz.timezone('Asia/Seoul')
+    now = datetime.now(kst)
+    time_str = now.strftime("%p %I시 %M분 %S초")
+    time_str = time_str.replace("AM", "오전").replace("PM", "오후")
+    
+    return {
+        "floor": "2층", 
+        "updated": now.strftime("%Y-%m-%d") + " " + time_str
+    }
 
 def save_location(floor):
-    data = {"floor": floor, "updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+    # 한국 시간대 설정
+    kst = pytz.timezone('Asia/Seoul')
+    now = datetime.now(kst)
+    
+    # 오전/오후 형식으로 변환
+    time_str = now.strftime("%p %I시 %M분 %S초")
+    time_str = time_str.replace("AM", "오전").replace("PM", "오후")
+    
+    data = {
+        "floor": floor, 
+        "updated": now.strftime("%Y-%m-%d") + " " + time_str
+    }
     with open(DATA_FILE, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
     return data
@@ -478,15 +500,36 @@ else:
         current_data = load_location()
         update_time = current_data["updated"].split()[1] if " " in current_data["updated"] else current_data["updated"]
     
+         # 층별 색상
+        floor_colors = {
+            "1층": {"bg": "linear-gradient(135deg, #ffd4e8 0%, #ffc4d8 100%)", "main": "#ff1493", "sub": "#ff6b9d"},
+            "2층": {"bg": "linear-gradient(135deg, #d4e8ff 0%, #c4d8ff 100%)", "main": "#1e90ff", "sub": "#4da6ff"},
+            "3층": {"bg": "linear-gradient(135deg, #e8ffd4 0%, #d8ffc4 100%)", "main": "#32cd32", "sub": "#5ed65e"},
+            "4층": {"bg": "linear-gradient(135deg, #ffe8d4 0%, #ffd8c4 100%)", "main": "#ff8c00", "sub": "#ffaa33"},
+        }
+    
+        floor_key = current_data["floor"].split("(")[0] if "(" in current_data["floor"] else current_data["floor"]
+        c = floor_colors.get(floor_key, {"bg": "linear-gradient(135deg, #ffe4f0 0%, #ffd4e8 100%)", "main": "#ff1493", "sub": "#ff6b9d"})
+    
+        # 층별 동적 CSS
+        st.markdown(f"""
+            <style>
+            .current-floor-bg {{ background: {c["bg"]} !important; }}
+            .current-floor-main {{ color: {c["main"]} !important; text-shadow: 0.3vw 0.3vw 0.6vw rgba(0,0,0,0.2) !important; }}
+            .current-floor-sub {{ color: {c["sub"]} !important; }}
+            </style>
+        """, unsafe_allow_html=True)
+    
         st.markdown(f'''
-            <div class="display-container">
-            <div class="location-text">현재 위치</div>
-            <div class="floor-text">{current_data["floor"]}</div>
-            <div class="update-time">업데이트: {update_time}</div>
-        </div>
+            <div class="display-container current-floor-bg">
+                <div class="location-text current-floor-sub">현재 위치</div>
+                <div class="floor-text current-floor-main">{current_data["floor"]}</div>
+                <div class="update-time current-floor-sub">업데이트: {update_time}</div>
+            </div>
         ''', unsafe_allow_html=True)
         
     # 오른쪽: 시간표
+    # 오른쪽: 시간표 + 네트워크 상태
     with col_right:
         st.markdown('<div class="timetable-container">', unsafe_allow_html=True)
         st.markdown('<div class="timetable-title">📅 1학기 시간표</div>', unsafe_allow_html=True)
@@ -516,7 +559,37 @@ else:
         
         table_html += "</table>"
         st.markdown(table_html, unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+        
+        # 네트워크 상태 (시간표 바로 밑 - 항상 표시)
+        st.markdown("""
+            <div id="network-status-ok" style="text-align: center; margin-top: 0.5vh; padding: 0.8vh; background: #d4f4dd; color: #2d8659; border-radius: 8px; font-size: clamp(11px, 1.5vw, 14px); font-weight: bold;">
+                ✅ 네트워크 원활
+            </div>
+            
+            <div id="network-status-error" style="text-align: center; margin-top: 0.5vh; padding: 0.8vh; background: #ffe4e4; color: #ff1493; border-radius: 8px; display: none; font-size: clamp(11px, 1.5vw, 14px); font-weight: bold;">
+                ⚠️ 네트워크 연결 안됨. 선생님께 문의
+            </div>
+            
+            <script>
+            function checkNetwork() {
+                const statusOk = document.getElementById('network-status-ok');
+                const statusError = document.getElementById('network-status-error');
+                
+                if (navigator.onLine) {
+                    statusOk.style.display = 'block';
+                    statusError.style.display = 'none';
+                } else {
+                    statusOk.style.display = 'none';
+                    statusError.style.display = 'block';
+                }
+            }
+            
+            checkNetwork();
+            window.addEventListener('online', checkNetwork);
+            window.addEventListener('offline', checkNetwork);
+            setInterval(checkNetwork, 5000);
+            </script>
+        """, unsafe_allow_html=True)
 
         import time
         time.sleep(5)
