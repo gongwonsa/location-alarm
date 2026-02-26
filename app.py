@@ -498,7 +498,13 @@ else:
     # 왼쪽: 현재 위치
     with col_left:
         current_data = load_location()
-        update_time = current_data["updated"].split()[1] if " " in current_data["updated"] else current_data["updated"]
+        # 안전한 시간 추출
+        full_updated = current_data.get("updated", "")
+        if full_updated and " " in full_updated:
+            date_part, time_part = full_updated.split(" ", 1)
+            update_time = time_part
+        else:
+            update_time = full_updated if full_updated else "시간 정보 없음"
     
          # 층별 색상
         floor_colors = {
@@ -560,7 +566,7 @@ else:
         table_html += "</table>"
         st.markdown(table_html, unsafe_allow_html=True)
         
-        # 네트워크 상태 (시간표 바로 밑 - 항상 표시)
+         # 네트워크 상태
         st.markdown("""
             <div id="network-status-ok" style="text-align: center; margin-top: 0.5vh; padding: 0.8vh; background: #d4f4dd; color: #2d8659; border-radius: 8px; font-size: clamp(11px, 1.5vw, 14px); font-weight: bold;">
                 ✅ 네트워크 원활
@@ -571,7 +577,7 @@ else:
             </div>
             
             <script>
-            function checkNetwork() {
+            function updateNetworkStatus() {
                 const statusOk = document.getElementById('network-status-ok');
                 const statusError = document.getElementById('network-status-error');
                 
@@ -584,10 +590,12 @@ else:
                 }
             }
             
-            checkNetwork();
-            window.addEventListener('online', checkNetwork);
-            window.addEventListener('offline', checkNetwork);
-            setInterval(checkNetwork, 5000);
+            // 1. 페이지 로드 시 체크
+            updateNetworkStatus();
+            
+            // 2. 네트워크 상태 변경 시 즉시 반영
+            window.addEventListener('online', updateNetworkStatus);
+            window.addEventListener('offline', updateNetworkStatus);
             </script>
         """, unsafe_allow_html=True)
 
